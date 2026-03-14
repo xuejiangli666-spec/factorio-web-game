@@ -598,14 +598,49 @@ let state = {
 };
 let previousResources = {};
 
+// 日志函数 - 提前定义以便在init中使用
+function log(m, type = 'normal') {
+    const l = document.getElementById('game-log');
+    if(!l) {
+        console.log(`> ${m}`);
+        return;
+    }
+    const d = document.createElement('div'); d.innerText = `> ${m}`;
+    if (type === 'warning') d.style.color = '#ffd93d';
+    if (type === 'danger') d.style.color = '#ff6b6b';
+    if (type === 'success') d.style.color = '#00ff88';
+    l.prepend(d); if(l.children.length > 15) l.lastChild.remove();
+}
+
 function init() {
+    // 清除可能损坏的本地存储（GitHub Pages首次运行）
+    try {
+        const saved = localStorage.getItem('factory_v4_enhanced_save');
+        if (saved) {
+            const data = JSON.parse(saved);
+            // 检查存档是否完整
+            if (!data.buildings || !data.resources) {
+                console.log('存档数据不完整，重置游戏');
+                localStorage.removeItem('factory_v4_enhanced_save');
+            }
+        }
+    } catch(e) {
+        console.log('存档检查失败，清除存档');
+        localStorage.removeItem('factory_v4_enhanced_save');
+    }
+
+    // 初始化资源
     Object.keys(CONFIG.recipes).forEach(r => state.resources[r] = 0);
     ['铁矿','铜矿','锡矿','方铅矿','煤矿','石矿','石英矿','木材'].forEach(r => { if(!(r in state.resources)) state.resources[r] = 0; });
     state.resources['铁矿'] = 50; state.resources['煤矿'] = 100; state.resources['石矿'] = 50;
-state.resources['铁齿轮'] = 10;        // 初始赠送齿轮，解决前期物流设备建造问题
-state.resources['基础传送带'] = 5;      // 初始赠送少量传送带
-state.resources['电力机械臂'] = 5;      // 初始赠送少量机械臂
+    state.resources['铁齿轮'] = 10;
+    state.resources['基础传送带'] = 5;
+    state.resources['电力机械臂'] = 5;
+
+    // 初始化建筑
     Object.keys(CONFIG.machines).forEach(k => { state.buildings[k] = { count: 0, fuelTime: 0, progress: 0, running: true }; });
+
+    // 加载存档
     try {
         const saved = localStorage.getItem('factory_v4_enhanced_save');
         if(saved) {
@@ -618,8 +653,20 @@ state.resources['电力机械臂'] = 5;      // 初始赠送少量机械臂
             if (state.techBranch) updateTechBranchUI();
         }
     } catch(e) { log('⚠️ 存档加载失败，使用默认初始状态'); }
+
     CONFIG.achievements.forEach(a => { if (!state.achievements[a.id]) state.achievements[a.id] = false; });
-    renderBase(); renderAchievements(); renderWonderRequirements(); checkUnlock();
+
+    // 渲染界面
+    try {
+        renderBase();
+        renderAchievements();
+        renderWonderRequirements();
+        checkUnlock();
+    } catch(e) {
+        console.error('渲染失败:', e);
+        log('❌ 界面渲染失败，请刷新页面重试');
+    }
+
     setInterval(tick, 100); setInterval(eventTick, 1000);
     setInterval(() => { if (Math.random() < 0.1 && !state.activeEvent) triggerRandomEvent(); }, 30000);
     log('🎮 游戏初始化完成！选择科技分支开始你的工业革命！');
@@ -1008,4 +1055,49 @@ function updateWonderProgress() {
 function buildWonder() {
     let canBuild = true;
     Object.entries(CONFIG.wonderRequirements).forEach(([res, required]) => { if ((state.resources[res] || 0) < required) canBuild = false; });
-    if (!canBuild) { log('❌ 资源不足，无法建造
+    if (!canBuild) { log('❌ 资源不足，无法建造奇迹！', 'danger'); return; }
+    Object.entries(CONFIG.wonderRequirements).forEach(([res, required]) => { state.resources[res] -= required; });
+    log('🎉 恭喜！你已成功建造空间折叠发生器！', 'success');
+    log('🌟 你已成为真正的工业巨头！游戏通关！', 'success');
+    alert('🏆 恭喜通关！\\n\\n你已成功建造空间折叠发生器，证明了你的工业实力！');
+}
+
+function saveGame() {
+    try { localStorage.setItem('factory_v4_enhanced_save', JSON.stringify(state)); log('💾 存档成功'); }
+    catch(e) { log('❌ 存档失败：' + (e.message || '未知错误')); }
+}
+
+// 移动端触摸优化
+document.addEventListener('touchstart', function() {}, { passive: true });
+
+// 防止双击缩放
+let lastTouchEnd = 0;
+document.addEventListener('touchend', function(e) {
+    const now = Date.now();
+    if (now - lastTouchEnd <= 300) {
+        e.preventDefault();
+    }
+    lastTouchEnd = now;
+}, { passive: false });
+
+// 防止页面滚动时误触
+document.addEventListener('touchmove', function(e) {
+    if (e.target.closest('.log-panel')) {
+        e.stopPropagation();
+    }
+}, { passive: true });
+
+// 检测是否为移动设备并添加类名
+function detectMobile() {
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if (isMobile) {
+        document.body.classList.add('mobile-device');
+        log('📱 已切换到移动端模式');
+    }
+}
+
+if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function() { init(); detectMobile(); });
+else { init(); detectMobile(); }
+</script>
+</body>
+</html>
