@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0c2461">
+    <title>🏭 网页工厂 4.0 工业革命 - 深度策略版</title>
+    <style>
+        :root {
+            --primary: #00d4aa;
+            --primary-dark: #00b894;
+            --danger: #ff6b6b;
+            --warning: #ffd93d;
+            --fuel: #ff9f43;
+            --bg: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            --panel: rgba(255, 255, 255, 0.95);
+            --panel-dark: rgba(30, 30, 50, 0.9);
+            --text: #2d3436;
+            --text-light: #dfe6e9;
+            --border: rgba(255, 255, 255, 0.2);
+            --tech: #a29bfe;
+            --electric: #fdcb6e;
+            --green: #00b894;
+            --blue: #74b9ff;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.15);
+            --pollution: #8B4513;
+            --logistics: #e17055;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: var(--bg);
+            background-attachment: fixed;
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        header {
+            background: linear-gradient(90deg, #0c2461 0%, #1e3799 50%, #0c2461 100%);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        header h1 {
+            font-size: 1.5rem;
+            text-shadow: 0 0 10px rgba(0, 212, 170, 0.5);
+            animation: titleGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes titleGlow {
+            0%, 100% { text-shadow: 0 0 10px rgba(0, 212, 170, 0.5); }
+            50% { text-shadow: 0 0 20px rgba(0, 212, 170, 0.8), 0 0 30px rgba(0, 212, 170, 0.4); }
+        }
+
+        .header-stats { display: flex; gap: 20px; align-items: center; }
+
+        .battery-container, .pollution-container {
+            display: flex; align-items: center; gap: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px 16px; border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .pollution-container {
+            background: rgba(139, 69, 19, 0.3);
+            border: 1px solid rgba(139, 69, 19, 0.5);
+        }
+
+        .battery { width: 50px; height: 24px; border: 2px solid #fff; border-radius: 4px; position: relative; background: rgba(0, 0, 0, 0.3); overflow: hidden; }
+        .pollution-bar { width: 80px; height: 12px; border-radius: 6px; }
+
+        .battery-fill, .pollution-fill { height: 100%; border-radius: 2px; transition: all 0.5s ease; }
+        .pollution-fill { border-radius: 6px; background: linear-gradient(90deg, #8B4513 0%, #D2691E 50%, #ff6b6b 100%); }
+
+        .battery-fill.high { background: linear-gradient(90deg, #00b894 0%, #00d4aa 100%); }
+        .battery-fill.medium { background: linear-gradient(90deg, #fdcb6e 0%, #ffd93d 100%); }
+        .battery-fill.low { background: linear-gradient(90deg, #e74c3c 0%, #ff6b6b 100%); animation: batteryWarning 1s ease-in-out infinite; }
+
+        @keyframes batteryWarning { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+
+        .battery-text, .pollution-text { color: #fff; font-size: 0.9rem; font-weight: bold; min-width: 60px; text-align: center; }
+        .pollution-text { font-size: 0.8rem; }
+
+        .container { display: grid; grid-template-columns: 300px 1fr 300px; gap: 20px; padding: 20px; max-width: 1800px; margin: 0 auto; }
+
+        .sidebar { display: flex; flex-direction: column; gap: 15px; height: calc(100vh - 100px); overflow-y: auto; }
+        .sidebar::-webkit-scrollbar { width: 6px; }
+        .sidebar::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.1); border-radius: 3px; }
+        .sidebar::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 3px; }
+
+        .panel { background: var(--panel); padding: 16px; border-radius: 12px; box-shadow: var(--shadow-sm); transition: all 0.3s ease; border: 1px solid var(--border); }
+        .panel:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
+        .panel h3 { color: #2d3436; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--primary); display: flex; align-items: center; gap: 8px; font-size: 1rem; }
+
+        .res-category { margin-bottom: 16px; }
+        .res-category-title { font-size: 0.85rem; font-weight: bold; color: #636e72; margin-bottom: 8px; padding: 4px 8px; background: rgba(0, 0, 0, 0.05); border-radius: 6px; display: flex; align-items: center; gap: 6px; }
+        .res-category-title.red-era { border-left: 3px solid #e74c3c; color: #e74c3c; }
+        .res-category-title.green-era { border-left: 3px solid var(--green); color: var(--green); }
+        .res-category-title.logistics { border-left: 3px solid var(--logistics); color: var(--logistics); }
+
+        .res-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+
+        .res-item { display: flex; flex-direction: column; justify-content: space-between; padding: 6px 8px; background: linear-gradient(90deg, #f8f9fa 0%, #ffffff 100%); border-radius: 6px; border-left: 3px solid var(--primary); transition: transform 0.3s ease, box-shadow 0.3s ease; position: relative; min-height: 50px; }
+        .res-item:hover { background: linear-gradient(90deg, #e8f5e9 0%, #f1f8e9 100%); transform: translateX(3px); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
+        .res-item span { font-size: 0.75rem; color: #636e72; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .res-value-container { display: flex; align-items: center; justify-content: space-between; gap: 4px; margin-top: 2px; }
+        .res-item b { font-size: 0.9rem; transition: all 0.3s ease; }
+        .res-item b.changed { animation: numberPop 0.5s ease; }
+        @keyframes numberPop { 0% { transform: scale(1); } 50% { transform: scale(1.3); color: var(--primary); } 100% { transform: scale(1); } }
+
+        .res-progress-bar { flex: 1; height: 4px; background: #dfe6e9; border-radius: 2px; overflow: hidden; position: relative; min-width: 30px; }
+        .res-progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary) 0%, var(--blue) 100%); border-radius: 2px; transition: width 0.5s ease; }
+
+        .logistics-status { background: linear-gradient(135deg, rgba(225, 112, 85, 0.1) 0%, rgba(225, 112, 85, 0.05) 100%); border: 1px solid rgba(225, 112, 85, 0.3); border-radius: 8px; padding: 12px; margin-bottom: 12px; }
+        .logistics-status h4 { color: var(--logistics); font-size: 0.9rem; margin-bottom: 8px; }
+        .logistics-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+        .logistics-bar span { font-size: 0.8rem; min-width: 80px; color: #636e72; }
+        .logistics-progress { flex: 1; height: 8px; background: #dfe6e9; border-radius: 4px; overflow: hidden; }
+        .logistics-fill { height: 100%; background: linear-gradient(90deg, var(--logistics) 0%, #ff6b6b 100%); border-radius: 4px; transition: width 0.5s ease; }
+        .logistics-text { font-size: 0.75rem; color: var(--logistics); font-weight: bold; min-width: 40px; text-align: right; }
+
+        .log-panel { height: 200px; overflow-y: auto; background: linear-gradient(180deg, #0c0c0c 0%, #1a1a1a 100%); color: #00ff88; padding: 12px; font-family: 'Consolas', 'Monaco', monospace; font-size: 12px; border-radius: 8px; border: 1px solid #333; }
+        .log-panel div { padding: 4px 0; border-bottom: 1px solid rgba(0, 255, 136, 0.1); }
+        .log-panel div.warning { color: #ffd93d; }
+        .log-panel div.danger { color: #ff6b6b; }
+        .log-panel div.success { color: #00ff88; }
+
+        .power-bar { background: linear-gradient(90deg, #fff9c4 0%, #fff59d 100%); padding: 15px 20px; border-radius: 12px; margin-bottom: 20px; border-left: 5px solid var(--electric); font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+        .efficiency-display { display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: rgba(0, 0, 0, 0.1); border-radius: 20px; }
+
+        .tab-nav { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+        .tab-btn { padding: 12px 20px; background: linear-gradient(135deg, #b2bec3 0%, #dfe6e9 100%); border: none; border-radius: 25px; cursor: pointer; font-weight: bold; font-size: 0.85rem; transition: all 0.3s ease; }
+        .tab-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); }
+        .tab-btn.active { background: linear-gradient(135deg, var(--blue) 0%, #0984e3 100%); color: white; }
+        .tab-btn.locked { background: linear-gradient(135deg, #636e72 0%, #b2bec3 100%); cursor: not-allowed; opacity: 0.6; }
+
+        .page-content { display: none; opacity: 0; transform: translateY(20px); transition: all 0.4s ease; }
+        .page-content.active { display: block; opacity: 1; transform: translateY(0); }
+
+        .machine-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+
+        .machine-card { background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%); border: 1px solid rgba(0, 0, 0, 0.08); border-radius: 12px; padding: 16px; transition: all 0.3s ease; position: relative; overflow: hidden; }
+        .machine-card:hover { transform: translateY(-5px); box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15); }
+        .machine-card.bottleneck { border: 2px solid var(--danger); animation: bottleneckPulse 1s ease-in-out infinite; }
+        @keyframes bottleneckPulse { 0%, 100% { box-shadow: 0 0 5px rgba(255, 107, 107, 0.3); } 50% { box-shadow: 0 0 15px rgba(255, 107, 107, 0.6); } }
+
+        .machine-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .machine-card .count { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white; padding: 4px 12px; border-radius: 15px; font-size: 0.9rem; }
+        .machine-card .cost { font-size: 0.8rem; color: #636e72; margin: 10px 0; padding: 8px; background: rgba(0, 0, 0, 0.03); border-radius: 6px; }
+
+        .logistics-req { font-size: 0.75rem; color: var(--logistics); margin: 6px 0; padding: 6px 8px; background: rgba(225, 112, 85, 0.1); border-radius: 4px; border-left: 2px solid var(--logistics); }
+
+        .machine-controls { display: flex; gap: 8px; margin-top: 10px; }
+        .btn-control { padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: all 0.3s ease; display: flex; align-items: center; gap: 4px; min-width: 80px; justify-content: center; }
+        .btn-control.running { background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%); color: white; }
+        .btn-control.paused { background: linear-gradient(135deg, #00b894 0%, #00d4aa 100%); color: white; }
+
+        .recipe-info { margin: 10px 0; padding: 10px; background: linear-gradient(135deg, rgba(0, 212, 170, 0.1) 0%, rgba(116, 185, 255, 0.1) 100%); border-radius: 8px; border-left: 3px solid var(--primary); }
+        .recipe-formula { font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+
+        button { padding: 10px 16px; border: none; border-radius: 8px; cursor: pointer; font-size: 0.9rem; transition: all 0.3s ease; font-weight: 600; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+        button:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); }
+        button:active { transform: translateY(0); }
+        .btn-build { background: linear-gradient(135deg, var(--blue) 0%, #0984e3 100%); color: white; width: 100%; }
+        .btn-action { background: linear-gradient(135deg, var(--fuel) 0%, #ee5a24 100%); color: white; padding: 10px 20px; }
+        .btn-save { background: linear-gradient(135deg, var(--green) 0%, #00a885 100%); color: white; padding: 10px 20px; }
+        .btn-tech { background: linear-gradient(135deg, var(--tech) 0%, #6c5ce7 100%); color: white; padding: 10px 20px; }
+
+        progress { width: 100%; height: 10px; border-radius: 5px; overflow: hidden; margin-top: 10px; -webkit-appearance: none; }
+        progress::-webkit-progress-bar { background: #dfe6e9; border-radius: 5px; }
+        progress::-webkit-progress-value { background: linear-gradient(90deg, var(--primary) 0%, var(--blue) 100%); border-radius: 5px; }
+
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .rotate-icon { display: inline-block; animation: rotate 2s linear infinite; }
+
+        .tech-tree { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 16px; }
+        .tech-branch { background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border: 2px solid #dfe6e9; border-radius: 12px; padding: 16px; transition: all 0.3s ease; }
+        .tech-branch:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1); }
+        .tech-branch.selected { border-color: var(--green); background: linear-gradient(135deg, rgba(0, 184, 148, 0.1) 0%, rgba(0, 212, 170, 0.05) 100%); }
+        .tech-benefits { font-size: 0.8rem; color: var(--green); margin-bottom: 12px; padding-left: 16px; }
+
+        .event-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.7); display: flex; justify-content: center; align-items: center; z-index: 2000; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
+        .event-modal.active { opacity: 1; visibility: visible; }
+        .event-content { background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%); border-radius: 16px; padding: 24px; max-width: 500px; width: 90%; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); }
+        .event-timer { text-align: center; font-size: 1.5rem; font-weight: bold; color: var(--danger); margin-bottom: 16px; }
+        .event-actions { display: flex; gap: 12px; }
+        .event-actions button { flex: 1; }
+
+        .achievement-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 12px; }
+        .achievement-item { background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border: 2px solid #dfe6e9; border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 12px; transition: all 0.3s ease; }
+        .achievement-item.unlocked { border-color: var(--green); background: linear-gradient(135deg, rgba(0, 184, 148, 0.1) 0%, rgba(0, 212, 170, 0.05) 100%); }
+
+        .tech-goal { background: linear-gradient(135deg, #2d3436 0%, #636e72 100%); color: white; padding: 16px; border-radius: 12px; }
+        .mini-progress { width: 100px; height: 8px; background: rgba(0, 0, 0, 0.2); border-radius: 4px; overflow: hidden; }
+        .mini-progress-bar { height: 100%; background: linear-gradient(90deg, var(--warning) 0%, var(--fuel) 100%); border-radius: 4px; transition: width 0.5s ease; }
+
+        .wonder-container { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border: 3px solid var(--tech); border-radius: 16px; padding: 24px; margin-top: 20px; text-align: center; position: relative; overflow: hidden; }
+        .wonder-container h3 { color: var(--tech); font-size: 1.5rem; margin-bottom: 16px; }
+        .wonder-progress { background: rgba(0, 0, 0, 0.3); border-radius: 12px; height: 24px; overflow: hidden; margin: 16px 0; }
+        .wonder-progress-bar { height: 100%; background: linear-gradient(90deg, var(--tech) 0%, var(--blue) 100%); border-radius: 12px; transition: width 0.5s ease; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.9rem; }
+        .wonder-requirements { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 16px; }
+        .wonder-req-item { background: rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 8px; font-size: 0.8rem; color: var(--text-light); }
+
+        @media (max-width: 1400px) { .container { grid-template-columns: 280px 1fr 280px; } }
+        @media (max-width: 1200px) { .container { grid-template-columns: 1fr; } .sidebar { height: auto; } .tech-tree { grid-template-columns: 1fr; } }
+
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            header { padding: 10px 15px; flex-wrap: wrap; gap: 10px; }
+            header h1 { font-size: 1.1rem; width: 100%; text-align: center; }
+            .header-stats { width: 100%; justify-content: center; gap: 10px; }
+            .battery-container, .pollution-container { padding: 6px 10px; font-size: 0.8rem; }
+            .battery { width: 40px; height: 20px; }
+            .pollution-bar { width: 60px; }
+
+            .container { padding: 10px; gap: 10px; }
+            .sidebar { gap: 10px; }
+            .panel { padding: 12px; }
+
+            .tab-nav { gap: 8px; margin-bottom: 15px; }
+            .tab-btn { padding: 10px 14px; font-size: 0.8rem; flex: 1; min-width: 80px; }
+
+            .machine-grid { grid-template-columns: 1fr; gap: 12px; }
+            .machine-card { padding: 12px; }
+            .machine-header { flex-wrap: wrap; gap: 8px; }
+            .machine-controls { flex-wrap: wrap; }
+            .btn-control { flex: 1; min-width: 70px; }
+
+            .res-grid { grid-template-columns: 1fr; }
+            .res-item { min-height: 45px; }
+
+            .tech-tree { grid-template-columns: 1fr; gap: 12px; }
+            .tech-branch { padding: 12px; }
+
+            .achievement-grid { grid-template-columns: 1fr; }
+
+            .wonder-requirements { grid-template-columns: repeat(2, 1fr); }
+
+            .event-content { padding: 20px; margin: 20px; }
+            .event-actions { flex-direction: column; }
+            .event-actions button { width: 100%; }
+
+            .log-panel { height: 150px; font-size: 11px; }
+
+            .power-bar { flex-direction: column; gap: 10px; align-items: flex-start; padding: 12px 15px; }
+
+            button { padding: 12px 16px; min-height: 44px; }
+            .btn-build, .btn-action, .btn-save, .btn-tech { width: 100%; margin: 4px 0; }
+        }
+
+        @media (max-width: 480px) {
+            header h1 { font-size: 1rem; }
+            .tab-btn { padding: 8px 10px; font-size: 0.75rem; min-width: 70px; }
+            .machine-card .count { font-size: 0.8rem; padding: 3px 8px; }
+            .recipe-formula { font-size: 0.75rem; }
+        }
+
+        /* 触摸设备优化 */
+        @media (pointer: coarse) {
+            .tab-btn, button, .machine-card { touch-action: manipulation; }
+            .tab-btn:active, button:active { transform: scale(0.95); }
+            .machine-card { -webkit-tap-highlight-color: transparent; }
+        }
+
+        .resource-popup { position: fixed; color: var(--green); font-weight: bold; font-size: 1.2rem; pointer-events: none; animation: popupFloat 1s ease-out forwards; z-index: 9999; }
+        @keyframes popupFloat { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-50px) scale(1.2); } }
+    </style>
+</head>
+<body>
+<header>
+    <h1>🏭 网页工厂 4.0 - 工业革命深度版</h1>
+    <div class="header-stats">
+        <div class="battery-container">
+            <span>⚡ 电力</span>
+            <div class="battery"><div class="battery-fill high" id="battery-fill" style="width: 100%"></div></div>
+            <span class="battery-text" id="power-summary">0/0</span>
+        </div>
+        <div class="pollution-container" id="pollution-container" style="display: none;">
+            <span>🏭 污染</span>
+            <div class="pollution-bar"><div class="pollution-fill" id="pollution-fill" style="width: 0%"></div></div>
+            <span class="pollution-text" id="pollution-text">0%</span>
+        </div>
+    </div>
+</header>
+
+<div class="container">
+    <div class="sidebar">
+        <div class="panel"><h3>📦 资源仓库</h3><div id="res-list"></div></div>
+        <div class="panel">
+            <h3>🚛 物流状态</h3>
+            <div class="logistics-status">
+                <h4>📊 传送带负载</h4>
+                <div class="logistics-bar">
+                    <span>基础传送带</span>
+                    <div class="logistics-progress"><div class="logistics-fill" id="belt-load-basic" style="width: 0%"></div></div>
+                    <span class="logistics-text" id="belt-text-basic">0%</span>
+                </div>
+                <div class="logistics-bar">
+                    <span>高级传送带</span>
+                    <div class="logistics-progress"><div class="logistics-fill" id="belt-load-advanced" style="width: 0%"></div></div>
+                    <span class="logistics-text" id="belt-text-advanced">0%</span>
+                </div>
+            </div>
+            <div class="logistics-status">
+                <h4>🦾 机械臂效率</h4>
+                <div class="logistics-bar">
+                    <span>总效率</span>
+                    <div class="logistics-progress"><div class="logistics-fill" id="inserter-efficiency" style="width: 100%"></div></div>
+                    <span class="logistics-text" id="inserter-text">100%</span>
+                </div>
+            </div>
+        </div>
+        <div class="log-panel" id="game-log"></div>
+    </div>
+
+    <div class="main-area">
+        <div class="power-bar">
+            <div class="efficiency-display"><span>⚙️ 系统效率:</span><span id="eff-tag">100%</span></div>
+            <div class="efficiency-display"><span>🎯 科技分支:</span><span id="tech-branch-tag">未选择</span></div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="color: var(--warning); font-weight: bold;">🔬 解锁进度:</span>
+                <div class="mini-progress"><div class="mini-progress-bar" id="unlock-bar" style="width: 0%"></div></div>
+                <span id="unlock-progress">0/100</span>
+            </div>
+            <button class="btn-save" onclick="saveGame()">💾 手动存档</button>
+        </div>
+
+        <div class="tab-nav">
+            <button id="btn-red-tab" class="tab-btn active" onclick="switchPage('red', this)">🔴 基础工业</button>
+            <button id="btn-power-tab" class="tab-btn" onclick="switchPage('power', this)">⚡ 电力系统</button>
+            <button id="btn-logistics-tab" class="tab-btn" onclick="switchPage('logistics', this)">🚛 物流系统</button>
+            <button id="btn-tech-tab" class="tab-btn" onclick="switchPage('tech', this)">🔬 科技树</button>
+            <button id="btn-defense-tab" class="tab-btn" onclick="switchPage('defense', this)">🛡️ 防御系统</button>
+            <button id="btn-green-tab" class="tab-btn locked" onclick="switchPage('green', this)">🧪 绿瓶工业 (锁定)</button>
+        </div>
+
+        <div id="page-red" class="page-content active">
+            <div class="panel" style="margin-bottom:20px; border-top: 4px solid #e17055;">
+                <h3>🛠️ 手动紧急加工</h3>
+                <div style="display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap;">
+                    <button class="btn-action" onclick="manualMine()">⛏️ 随机挖掘</button>
+                    <button class="btn-action" onclick="manualCraft('铁板', {'铁矿':2})">🔨 敲铁板</button>
+<button class="btn-action" onclick="manualCraft('铁齿轮', {'铁板':2})">⚙️ 手搓齿轮</button>
+                </div>
+            </div>
+            <div class="panel"><h3>⛏️ 基础采矿</h3><div class="machine-grid" id="sec-miner-red"></div></div>
+            <div class="panel"><h3>🔥 基础冶炼</h3><div class="machine-grid" id="sec-furnace-red"></div></div>
+            <div class="panel"><h3>⚙️ 红瓶组装线</h3><div class="machine-grid" id="sec-assembler-red"></div></div>
+        </div>
+
+        <div id="page-power" class="page-content">
+            <div class="panel" style="margin-bottom:20px; background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%); border-left: 4px solid var(--electric);">
+                <h3>⚡ 电力系统说明</h3>
+                <p style="font-size: 0.9rem; color: #636e72; margin: 0;">蒸汽发电机是工厂的动力来源。建造发电机并确保煤矿供应，为其他设备提供电力。</p>
+            </div>
+            <div class="panel"><h3>⚡ 红瓶时代发电</h3><div class="machine-grid" id="sec-power-red"></div></div>
+            <div class="panel"><h3>⚡ 绿瓶时代发电</h3><div class="machine-grid" id="sec-power-green"></div></div>
+        </div>
+
+        <div id="page-logistics" class="page-content">
+            <div class="panel" style="margin-bottom:20px; background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%); border-left: 4px solid var(--logistics);">
+                <h3>🚛 物流系统说明</h3>
+                <p style="font-size: 0.9rem; color: #636e72; margin: 0;">机器需要传送带和机械臂来维持运输。如果物流不足，生产效率会降低！</p>
+            </div>
+            <div class="panel"><h3>📏 传送带系统</h3><div class="machine-grid" id="sec-belt"></div></div>
+            <div class="panel"><h3>🦾 机械臂系统</h3><div class="machine-grid" id="sec-inserter"></div></div>
+        </div>
+
+        <div id="page-tech" class="page-content">
+            <div class="panel">
+                <h3>🔬 科技分支选择</h3>
+                <p style="color: #636e72; margin-bottom: 16px;">选择一条科技路线，每种路线都有独特的加成效果。选择后不可更改！</p>
+                <div class="tech-tree">
+                    <div class="tech-branch" id="tech-heavy" onclick="selectTechBranch('heavy')">
+                        <h4>🏭 重工业流派</h4>
+                        <p>强化矿石产量和冶炼速度，适合暴力铺产能的玩家。</p>
+                        <ul class="tech-benefits"><li>⛏️ 采矿速度 +50%</li><li>🔥 冶炼速度 +30%</li><li>⚡ 电力消耗 -20%</li></ul>
+                        <button class="btn-tech" id="btn-tech-heavy">选择此路线</button>
+                    </div>
+                    <div class="tech-branch" id="tech-chemical" onclick="selectTechBranch('chemical')">
+                        <h4>🧪 精细化工流派</h4>
+                        <p>解锁催化剂科技，虽然步骤变多但能大幅减少原材料消耗。</p>
+                        <ul class="tech-benefits"><li>🧪 原材料消耗 -30%</li><li>⚗️ 解锁催化剂配方</li><li>📈 产品产出 +20%</li></ul>
+                        <button class="btn-tech" id="btn-tech-chemical">选择此路线</button>
+                    </div>
+                    <div class="tech-branch" id="tech-energy" onclick="selectTechBranch('energy')">
+                        <h4>⚡ 电力节能流派</h4>
+                        <p>极大降低机器功耗，适合懒得频繁造发电机的玩家。</p>
+                        <ul class="tech-benefits"><li>⚡ 电力消耗 -50%</li><li>🔋 发电效率 +40%</li><li>🌱 污染排放 -30%</li></ul>
+                        <button class="btn-tech" id="btn-tech-energy">选择此路线</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="page-defense" class="page-content">
+            <div class="panel" style="margin-bottom:20px; background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%); border-left: 4px solid var(--danger);">
+                <h3>🛡️ 防御系统说明</h3>
+                <p style="font-size: 0.9rem; color: #636e72; margin: 0;">工厂污染会积累并引发设备故障。建造防御设施来抵消污染影响！</p>
+            </div>
+            <div class="panel"><h3>🛡️ 防御建筑</h3><div class="machine-grid" id="sec-defense"></div></div>
+        </div>
+
+        <div id="page-green" class="page-content">
+            <div class="panel"><h3>⛏️ 稀有资源开采</h3><div class="machine-grid" id="sec-miner-green"></div></div>
+            <div class="panel"><h3>🔥 高级合金冶炼</h3><div class="machine-grid" id="sec-furnace-green"></div></div>
+            <div class="panel"><h3>⚙️ 绿瓶自动化流水线</h3><div class="machine-grid" id="sec-assembler-green"></div></div>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <div class="panel tech-goal">
+            <h3>🎯 科技发展目标</h3>
+            <div id="tech-status">
+                <p id="tech-info" style="font-size:0.9rem; line-height: 1.6;">
+                    目标：生产 <b style="color: var(--warning);">100</b> 个红瓶以解锁绿瓶科技。<br>
+                    <small style="opacity: 0.8;">当前进度将自动保存</small>
+                </p>
+            </div>
+        </div>
+        <div class="panel" id="event-panel" style="display: none;">
+            <h3>📋 当前订单</h3>
+            <div id="active-event-info"><p style="font-size: 0.85rem; color: #636e72;">暂无紧急订单</p></div>
+        </div>
+        <div class="panel">
+            <h3>🏆 成就勋章</h3>
+            <div class="achievement-grid" id="achievement-list"></div>
+        </div>
+        <div class="panel" id="wonder-panel" style="display: none;">
+            <h3>🌟 奇迹建筑</h3>
+            <div class="wonder-container">
+                <h3>🚀 空间折叠发生器</h3>
+                <p style="color: var(--text-light); font-size: 0.9rem; margin-bottom: 16px;">建造这个终极建筑来证明你的工业实力！</p>
+                <div class="wonder-progress"><div class="wonder-progress-bar" id="wonder-progress" style="width: 0%">0%</div></div>
+                <div class="wonder-requirements" id="wonder-reqs"></div>
+                <button class="btn-tech" onclick="buildWonder()" id="btn-wonder" style="margin-top: 16px; width: 100%;">🔨 建造奇迹</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="event-modal" id="event-modal">
+    <div class="event-content">
+        <div class="event-header" style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid var(--primary);">
+            <span style="font-size: 2rem;" id="event-icon">📦</span>
+            <h3 id="event-title">紧急订单</h3>
+        </div>
+        <p style="color: #636e72; margin-bottom: 16px; line-height: 1.6;" id="event-description">描述文本</p>
+        <div style="background: rgba(0, 212, 170, 0.1); border-radius: 8px; padding: 12px; margin-bottom: 16px;">
+            <h4 style="color: var(--primary); margin-bottom: 8px; font-size: 0.9rem;">订单需求：</h4>
+            <p id="event-reqs">需求列表</p>
+        </div>
+        <div style="text-align: center; font-size: 1.5rem; font-weight: bold; color: var(--danger); margin-bottom: 16px;" id="event-timer">02:00</div>
+        <div style="display: flex; gap: 12px;">
+            <button class="btn-action" onclick="acceptEvent()">✅ 接受订单</button>
+            <button class="btn-build" onclick="rejectEvent()">❌ 拒绝</button>
+        </div>
+    </div>
+</div>
+<script>
+const CONFIG = {
+    resourceStyles: {
+        '铁矿': { icon: '⛏️', color: '#8B4513', bgColor: 'rgba(139, 69, 19, 0.15)', category: 'basic' },
+        '铜矿': { icon: '🟤', color: '#B87333', bgColor: 'rgba(184, 115, 51, 0.15)', category: 'basic' },
+        '锡矿': { icon: '⚪', color: '#C0C0C0', bgColor: 'rgba(192, 192, 192, 0.2)', category: 'green' },
+        '方铅矿': { icon: '⚫', color: '#4a4a4a', bgColor: 'rgba(74, 74, 74, 0.15)', category: 'green' },
+        '煤矿': { icon: '🖤', color: '#2d3436', bgColor: 'rgba(45, 52, 54, 0.15)', category: 'basic' },
+        '石矿': { icon: '🪨', color: '#7f8c8d', bgColor: 'rgba(127, 140, 141, 0.15)', category: 'basic' },
+        '石英矿': { icon: '💎', color: '#74b9ff', bgColor: 'rgba(116, 185, 255, 0.15)', category: 'basic' },
+        '木材': { icon: '🪵', color: '#8B4513', bgColor: 'rgba(139, 69, 19, 0.15)', category: 'basic' },
+        '铁板': { icon: '🔩', color: '#636e72', bgColor: 'rgba(99, 110, 114, 0.15)', category: 'basic' },
+        '铜板': { icon: '🟧', color: '#e17055', bgColor: 'rgba(225, 112, 85, 0.15)', category: 'basic' },
+        '锡板': { icon: '⬜', color: '#b2bec3', bgColor: 'rgba(178, 190, 195, 0.2)', category: 'green' },
+        '铅板': { icon: '🔘', color: '#636e72', bgColor: 'rgba(99, 110, 114, 0.15)', category: 'green' },
+        '玻璃': { icon: '🥃', color: '#74b9ff', bgColor: 'rgba(116, 185, 255, 0.15)', category: 'basic' },
+        '木板': { icon: '📦', color: '#d35400', bgColor: 'rgba(211, 84, 0, 0.15)', category: 'basic' },
+        '铁齿轮': { icon: '⚙️', color: '#636e72', bgColor: 'rgba(99, 110, 114, 0.15)', category: 'basic' },
+        '铜线': { icon: '🧵', color: '#e17055', bgColor: 'rgba(225, 112, 85, 0.15)', category: 'basic' },
+        '基础电路板': { icon: '📟', color: '#00b894', bgColor: 'rgba(0, 184, 148, 0.15)', category: 'basic' },
+        '焊接板': { icon: '🔌', color: '#b2bec3', bgColor: 'rgba(178, 190, 195, 0.2)', category: 'green' },
+        '树脂': { icon: '🍯', color: '#f39c12', bgColor: 'rgba(243, 156, 18, 0.15)', category: 'green' },
+        '焊接剂': { icon: '🧪', color: '#9b59b6', bgColor: 'rgba(155, 89, 182, 0.15)', category: 'green' },
+        '碳': { icon: '⚫', color: '#2d3436', bgColor: 'rgba(45, 52, 54, 0.15)', category: 'green' },
+        '镀锡铜线': { icon: '🔗', color: '#C0C0C0', bgColor: 'rgba(192, 192, 192, 0.2)', category: 'green' },
+        '基本电子元器件': { icon: '🔬', color: '#3498db', bgColor: 'rgba(52, 152, 219, 0.15)', category: 'green' },
+        '电路板(绿)': { icon: '💚', color: '#00b894', bgColor: 'rgba(0, 184, 148, 0.2)', category: 'green' },
+        '电力机械臂': { icon: '🦾', color: '#e74c3c', bgColor: 'rgba(231, 76, 60, 0.15)', category: 'green' },
+        '基础传送带': { icon: '📏', color: '#f39c12', bgColor: 'rgba(243, 156, 18, 0.15)', category: 'green' },
+        '高级传送带': { icon: '📐', color: '#e74c3c', bgColor: 'rgba(231, 76, 60, 0.15)', category: 'green' },
+        '空气过滤器': { icon: '🌪️', color: '#00b894', bgColor: 'rgba(0, 184, 148, 0.15)', category: 'green' },
+        '修理机器人': { icon: '🤖', color: '#3498db', bgColor: 'rgba(52, 152, 219, 0.15)', category: 'green' },
+        '红瓶': { icon: '🔴', color: '#e74c3c', bgColor: 'rgba(231, 76, 60, 0.2)', category: 'basic' },
+        '绿瓶': { icon: '🟢', color: '#00b894', bgColor: 'rgba(0, 184, 148, 0.2)', category: 'green' }
+    },
+    machines: {
+        'steam_gen': { name: "蒸汽发电机", type: "power", tier: "red", cost: { '铁板': 10 }, powerGen: 100, fuel: true },
+        'miner_iron': { name: "铁矿钻机", type: "miner", tier: "red", cost: { '铁板': 5 }, output: "铁矿", fuel: true, logisticsReq: { belt: 0.2, inserter: 1 } },
+        'miner_copper': { name: "铜矿钻机", type: "miner", tier: "red", cost: { '铁板': 5 }, output: "铜矿", fuel: true, logisticsReq: { belt: 0.2, inserter: 1 } },
+        'miner_coal': { name: "煤矿钻机", type: "miner", tier: "red", cost: { '铁板': 5 }, output: "煤矿", fuel: true, logisticsReq: { belt: 0.2, inserter: 1 } },
+        'miner_stone': { name: "石矿钻机", type: "miner", tier: "red", cost: { '铁板': 5 }, output: "石矿", fuel: true, logisticsReq: { belt: 0.2, inserter: 1 } },
+        'miner_quartz': { name: "石英钻机", type: "miner", tier: "red", cost: { '铁板': 10 }, output: "石英矿", fuel: true, logisticsReq: { belt: 0.2, inserter: 1 } },
+        'miner_wood': { name: "自动伐木机", type: "miner", tier: "red", cost: { '铁板': 10 }, output: "木材", fuel: true, logisticsReq: { belt: 0.2, inserter: 1 } },
+        'furnace_iron': { name: "熔铁炉", type: "furnace", tier: "red", cost: { '石矿': 10 }, recipe: "铁板", fuel: true, logisticsReq: { belt: 0.2, inserter: 1 } },
+        'furnace_copper': { name: "熔铜炉", type: "furnace", tier: "red", cost: { '石矿': 10 }, recipe: "铜板", fuel: true, logisticsReq: { belt: 0.2, inserter: 1 } },
+        'furnace_glass': { name: "玻璃炉", type: "furnace", tier: "red", cost: { '石矿': 15 }, recipe: "玻璃", fuel: true, logisticsReq: { belt: 0.2, inserter: 1 } },
+        'asm_gear': { name: "齿轮制造机", type: "assembler", tier: "red", cost: { '铁板': 15 }, recipe: "铁齿轮", powerCons: 10, logisticsReq: { belt: 0.2, inserter: 1 } },
+        'asm_wire': { name: "铜线加工机", type: "assembler", tier: "red", cost: { '铁板': 10 }, recipe: "铜线", powerCons: 5, logisticsReq: { belt: 0.2, inserter: 1 } },
+        'asm_wood': { name: "木材加工机", type: "assembler", tier: "red", cost: { '铁板': 15 }, recipe: "木板", powerCons: 5, logisticsReq: { belt: 0.2, inserter: 1 } },
+        'asm_circuit_base': { name: "基础电路板机", type: "assembler", tier: "red", cost: { '铁板': 30 }, recipe: "基础电路板", powerCons: 20, logisticsReq: { belt: 0.2, inserter: 1 } },
+        'asm_red': { name: "红瓶组装机", type: "assembler", tier: "red", cost: { '铁板': 50 }, recipe: "红瓶", powerCons: 40, logisticsReq: { belt: 0.2, inserter: 1 } },
+        'miner_tin': { name: "锡矿钻机", type: "miner", tier: "green", cost: { '铁板': 15 }, output: "锡矿", fuel: true, logisticsReq: { belt: 0.2, inserter: 1 } },
+        'miner_lead': { name: "方铅矿钻机", type: "miner", tier: "green", cost: { '铁板': 15 }, output: "方铅矿", fuel: true, logisticsReq: { belt: 0.2, inserter: 1 } },
+        'furnace_tin': { name: "熔锡炉", type: "furnace", tier: "green", cost: { '石矿': 15 }, recipe: "锡板", fuel: true, logisticsReq: { belt: 0.2, inserter: 1 } },
+        'furnace_lead': { name: "熔铅炉", type: "furnace", tier: "green", cost: { '石矿': 15 }, recipe: "铅板", fuel: true, logisticsReq: { belt: 0.2, inserter: 1 } },
+        'asm_weld': { name: "焊接板工厂", type: "assembler", tier: "green", cost: { '铁板': 30 }, recipe: "焊接板", powerCons: 20, logisticsReq: { belt: 0.2, inserter: 1 } },
+        'asm_resin': { name: "树脂加工机", type: "assembler", tier: "green", cost: { '铁板': 20 }, recipe: "树脂", powerCons: 15, logisticsReq: { belt: 0.2, inserter: 1 } },
+        'asm_flux': { name: "焊接剂化工场", type: "assembler", tier: "green", cost: { '焊接板': 10 }, recipe: "焊接剂", powerCons: 30, logisticsReq: { belt: 0.2, inserter: 1 } },
+        'asm_carbon': { name: "碳处理机", type: "assembler", tier: "green", cost: { '铁板': 20 }, recipe: "碳", powerCons: 10, logisticsReq: { belt: 0.2, inserter: 1 } },
+        'asm_tin_wire': { name: "镀锡铜线机", type: "assembler", tier: "green", cost: { '铜线': 20 }, recipe: "镀锡铜线", powerCons: 15, logisticsReq: { belt: 0.2, inserter: 1 } },
+        'asm_electron': { name: "电子元器件厂", type: "assembler", tier: "green", cost: { '铁板': 40 }, recipe: "基本电子元器件", powerCons: 25, logisticsReq: { belt: 0.2, inserter: 1 } },
+        'asm_circuit_green': { name: "绿色电路板厂", type: "assembler", tier: "green", cost: { '基础电路板': 20 }, recipe: "电路板(绿)", powerCons: 40, logisticsReq: { belt: 0.2, inserter: 1 } },
+        'asm_belt': { name: "基础传送带厂", type: "assembler", tier: "green", cost: { '铁板': 20 }, recipe: "基础传送带", powerCons: 15, logisticsReq: { belt: 0.2, inserter: 1 } },
+        'asm_inserter': { name: "电力机械臂厂", type: "assembler", tier: "green", cost: { '铁板': 20 }, recipe: "电力机械臂", powerCons: 20, logisticsReq: { belt: 0.2, inserter: 1 } },
+        'asm_green': { name: "绿瓶组装机", type: "assembler", tier: "green", cost: { '电路板(绿)': 10 }, recipe: "绿瓶", powerCons: 80, logisticsReq: { belt: 0.2, inserter: 1 } },
+        'belt_basic': { name: "基础传送带", type: "belt", tier: "red", cost: { '铁板': 2, '铁齿轮': 1 }, beltCapacity: 5, logisticsReq: {} },
+        'belt_advanced': { name: "高级传送带", type: "belt", tier: "green", cost: { '铁板': 5, '铁齿轮': 2, '电路板(绿)': 1 }, beltCapacity: 15, logisticsReq: {} },
+        'inserter_basic': { name: "基础机械臂", type: "inserter", tier: "red", cost: { '铁板': 2, '铁齿轮': 1 }, inserterSpeed: 1, logisticsReq: {} },
+        'inserter_fast': { name: "快速机械臂", type: "inserter", tier: "green", cost: { '铁板': 4, '铁齿轮': 2, '电路板(绿)': 1 }, inserterSpeed: 2.5, logisticsReq: {} },
+        'filter_basic': { name: "空气过滤器", type: "defense", tier: "red", cost: { '铁板': 10, '基础电路板': 2 }, pollutionClean: 5, powerCons: 5 },
+        'filter_advanced': { name: "高级过滤器", type: "defense", tier: "green", cost: { '铁板': 20, '电路板(绿)': 2 }, pollutionClean: 15, powerCons: 15 },
+        'repair_bot': { name: "修理机器人", type: "defense", tier: "green", cost: { '铁板': 30, '电路板(绿)': 5, '电力机械臂': 2 }, repairPower: 10, powerCons: 20 }
+    },
+    recipes: {
+        '铁板': { time: 30, input: { '铁矿': 1 }, output: { '铁板': 1 } },
+        '铜板': { time: 30, input: { '铜矿': 1 }, output: { '铜板': 1 } },
+        '锡板': { time: 30, input: { '锡矿': 1 }, output: { '锡板': 1 } },
+        '铅板': { time: 30, input: { '方铅矿': 1 }, output: { '铅板': 1 } },
+        '玻璃': { time: 40, input: { '石英矿': 1 }, output: { '玻璃': 1 } },
+        '木板': { time: 10, input: { '木材': 1 }, output: { '木板': 2 } },
+        '铁齿轮': { time: 15, input: { '铁板': 2 }, output: { '铁齿轮': 1 } },
+        '铜线': { time: 10, input: { '铜板': 1 }, output: { '铜线': 2 } },
+        '基础电路板': { time: 50, input: { '铜线': 3, '木板': 1 }, output: { '基础电路板': 1 } },
+        '焊接板': { time: 70, input: { '锡板': 4, '铅板': 7 }, output: { '焊接板': 11 } },
+        '树脂': { time: 20, input: { '木材': 1 }, output: { '树脂': 1 } },
+        '焊接剂': { time: 20, input: { '树脂': 1, '焊接板': 4 }, output: { '焊接剂': 5 } },
+        '碳': { time: 20, input: { '煤矿': 1 }, output: { '碳': 2 } },
+        '镀锡铜线': { time: 5, input: { '铜线': 3, '锡板': 1 }, output: { '镀锡铜线': 1 } },
+        '基本电子元器件': { time: 20, input: { '镀锡铜线': 2, '碳': 1 }, output: { '基本电子元器件': 5 } },
+        '电路板(绿)': { time: 10, input: { '焊接剂': 1, '基本电子元器件': 4, '基础电路板': 1 }, output: { '电路板(绿)': 1 } },
+        '电力机械臂': { time: 5, input: { '铁齿轮': 1, '基础电路板': 1, '铁板': 1 }, output: { '电力机械臂': 1 } },
+        '基础传送带': { time: 5, input: { '铁齿轮': 2, '铁板': 2 }, output: { '基础传送带': 2 } },
+        '高级传送带': { time: 8, input: { '铁齿轮': 4, '铁板': 4, '电路板(绿)': 1 }, output: { '高级传送带': 2 } },
+        '红瓶': { time: 100, input: { '基础电路板': 1, '铁板': 1, '玻璃': 1 }, output: { '红瓶': 1 } },
+        '绿瓶': { time: 60, input: { '电路板(绿)': 1, '基础传送带': 1, '电力机械臂': 1 }, output: { '绿瓶': 1 } }
+    },
+    techBranches: {
+        heavy: { name: "重工业流派", miningSpeed: 1.5, smeltSpeed: 1.3, powerReduction: 0.8 },
+        chemical: { name: "精细化工流派", materialReduction: 0.7, outputBonus: 1.2 },
+        energy: { name: "电力节能流派", powerReduction: 0.5, genBonus: 1.4, pollutionReduction: 0.7 }
+    },
+    achievements: [
+        { id: 'clicker', name: '手撸大师', desc: '手动点击1000次', icon: '👆', condition: () => state.stats.manualClicks >= 1000 },
+        { id: 'power_master', name: '电力大亨', desc: '发电量突破10000W', icon: '⚡', condition: () => state.stats.maxPowerGen >= 10000 },
+        { id: 'industrial', name: '工业巨头', desc: '拥有100台机器', icon: '🏭', condition: () => state.stats.totalMachines >= 100 },
+        { id: 'scientist', name: '科学家', desc: '生产100个绿瓶', icon: '🔬', condition: () => state.resources['绿瓶'] >= 100 },
+        { id: 'logistics', name: '物流专家', desc: '拥有50条传送带', icon: '🚛', condition: () => (state.buildings['belt_basic']?.count || 0) + (state.buildings['belt_advanced']?.count || 0) >= 50 },
+        { id: 'clean', name: '环保先锋', desc: '污染值保持在20%以下1小时', icon: '🌱', condition: () => state.stats.lowPollutionTime >= 36000 }
+    ],
+    events: [
+        { id: 'iron_rush', name: '铁矿急单', icon: '⛏️', desc: '某建筑公司急需大量铁齿轮建造桥梁！', req: { '铁齿轮': 100 }, reward: { '铁板': 200, '铜板': 100 }, time: 120 },
+        { id: 'circuit_order', name: '电路板订单', icon: '📟', desc: '电子厂需要紧急供应基础电路板！', req: { '基础电路板': 50 }, reward: { '铜线': 200, '铁板': 150 }, time: 180 },
+        { id: 'green_bottle', name: '科研采购', icon: '🟢', desc: '研究所大量采购绿瓶用于实验！', req: { '绿瓶': 30 }, reward: { '电路板(绿)': 50, '高级传送带': 20 }, time: 300 },
+        { id: 'belt_contract', name: '传送带合同', icon: '📏', desc: '物流公司需要基础传送带扩展业务！', req: { '基础传送带': 100 }, reward: { '铁板': 300, '铁齿轮': 150 }, time: 240 }
+    ],
+    wonderRequirements: { '铁板': 50000, '铜板': 50000, '锡板': 30000, '铅板': 30000, '铁齿轮': 20000, '基础电路板': 10000, '电路板(绿)': 5000, '红瓶': 1000, '绿瓶': 500 }
+};
+
+let state = {
+    resources: {}, buildings: {}, techUnlocked: false, techBranch: null, totalRedBottles: 0, pollution: 0,
+    stats: { manualClicks: 0, maxPowerGen: 0, totalMachines: 0, lowPollutionTime: 0, startTime: Date.now() },
+    achievements: {}, activeEvent: null, eventTimer: 0, wonderProgress: 0
+};
+let previousResources = {};
+
+// 日志函数 - 提前定义以便在init中使用
+function log(m, type = 'normal') {
+    const l = document.getElementById('game-log');
+    if(!l) {
+        console.log(`> ${m}`);
+        return;
+    }
+    const d = document.createElement('div'); d.innerText = `> ${m}`;
+    if (type === 'warning') d.style.color = '#ffd93d';
+    if (type === 'danger') d.style.color = '#ff6b6b';
+    if (type === 'success') d.style.color = '#00ff88';
+    l.prepend(d); if(l.children.length > 15) l.lastChild.remove();
+}
+
+function init() {
+    // 清除可能损坏的本地存储（GitHub Pages首次运行）
+    try {
+        const saved = localStorage.getItem('factory_v4_enhanced_save');
+        if (saved) {
+            const data = JSON.parse(saved);
+            // 检查存档是否完整
+            if (!data.buildings || !data.resources) {
+                console.log('存档数据不完整，重置游戏');
+                localStorage.removeItem('factory_v4_enhanced_save');
+            }
+        }
+    } catch(e) {
+        console.log('存档检查失败，清除存档');
+        localStorage.removeItem('factory_v4_enhanced_save');
+    }
+
+    // 初始化资源
+    Object.keys(CONFIG.recipes).forEach(r => state.resources[r] = 0);
+    ['铁矿','铜矿','锡矿','方铅矿','煤矿','石矿','石英矿','木材'].forEach(r => { if(!(r in state.resources)) state.resources[r] = 0; });
+    state.resources['铁矿'] = 50; state.resources['煤矿'] = 100; state.resources['石矿'] = 50;
+    state.resources['铁齿轮'] = 10;
+    state.resources['基础传送带'] = 5;
+    state.resources['电力机械臂'] = 5;
+
+    // 初始化建筑
+    Object.keys(CONFIG.machines).forEach(k => { state.buildings[k] = { count: 0, fuelTime: 0, progress: 0, running: true }; });
+
+    // 加载存档
+    try {
+        const saved = localStorage.getItem('factory_v4_enhanced_save');
+        if(saved) {
+            const data = JSON.parse(saved);
+            Object.assign(state, data);
+            Object.keys(CONFIG.machines).forEach(k => {
+                if (!state.buildings[k]) state.buildings[k] = { count: 0, fuelTime: 0, progress: 0, running: true };
+                if (state.buildings[k].running === undefined) state.buildings[k].running = true;
+            });
+            if (state.techBranch) updateTechBranchUI();
+        }
+    } catch(e) { log('⚠️ 存档加载失败，使用默认初始状态'); }
+
+    CONFIG.achievements.forEach(a => { if (!state.achievements[a.id]) state.achievements[a.id] = false; });
+
+    // 渲染界面
+    try {
+        renderBase();
+        renderAchievements();
+        renderWonderRequirements();
+        checkUnlock();
+    } catch(e) {
+        console.error('渲染失败:', e);
+        log('❌ 界面渲染失败，请刷新页面重试');
+    }
+
+    setInterval(tick, 100); setInterval(eventTick, 1000);
+    setInterval(() => { if (Math.random() < 0.1 && !state.activeEvent) triggerRandomEvent(); }, 30000);
+    log('🎮 游戏初始化完成！选择科技分支开始你的工业革命！');
+}
+
+function switchPage(p, btnElement) {
+    if(p === 'green' && !state.techUnlocked) return;
+    document.querySelectorAll('.page-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById(`page-${p}`).classList.add('active');
+    if(btnElement) btnElement.classList.add('active');
+}
+
+function selectTechBranch(branch) {
+    if (state.techBranch) { log('❌ 你已经选择了科技分支，无法更改！'); return; }
+    state.techBranch = branch; updateTechBranchUI();
+    log(`✅ 已选择科技分支：${CONFIG.techBranches[branch].name}`);
+    if (branch === 'chemical') {
+        Object.keys(CONFIG.recipes).forEach(r => {
+            Object.keys(CONFIG.recipes[r].input).forEach(i => {
+                CONFIG.recipes[r].input[i] = Math.ceil(CONFIG.recipes[r].input[i] * CONFIG.techBranches.chemical.materialReduction);
+            });
+        });
+    }
+}
+
+function updateTechBranchUI() {
+    const branch = state.techBranch; if (!branch) return;
+    document.getElementById('tech-branch-tag').innerText = CONFIG.techBranches[branch].name;
+    document.querySelectorAll('.tech-branch').forEach(el => { el.classList.remove('selected'); el.classList.add('locked'); });
+    document.getElementById(`tech-${branch}`).classList.add('selected');
+    document.querySelectorAll('.tech-branch button').forEach(btn => {
+        btn.disabled = true;
+        if (btn.id === `btn-tech-${branch}`) { btn.innerText = '✅ 已选择'; btn.classList.add('selected'); }
+    });
+}
+
+function calculateLogistics() {
+    let totalBeltReq = 0, totalInserterReq = 0;
+    Object.keys(state.buildings).forEach(k => {
+        const b = state.buildings[k], conf = CONFIG.machines[k];
+        if (b.count > 0 && conf.logisticsReq) {
+            totalBeltReq += b.count * (conf.logisticsReq.belt || 0);
+            totalInserterReq += b.count * (conf.logisticsReq.inserter || 0);
+        }
+    });
+    const beltBasic = state.buildings['belt_basic']?.count || 0;
+    const beltAdvanced = state.buildings['belt_advanced']?.count || 0;
+    const totalBeltCapacity = beltBasic * 5 + beltAdvanced * 15;
+    const inserterBasic = state.buildings['inserter_basic']?.count || 0;
+    const inserterFast = state.buildings['inserter_fast']?.count || 0;
+    const totalInserterSpeed = inserterBasic * 1 + inserterFast * 2.5;
+    return {
+        beltRatio: totalBeltReq > 0 ? Math.min(1, totalBeltCapacity / totalBeltReq) : 1,
+        inserterRatio: totalInserterReq > 0 ? Math.min(1, totalInserterSpeed / totalInserterReq) : 1,
+        totalBeltReq, totalBeltCapacity, totalInserterReq, totalInserterSpeed
+    };
+}
+
+function calculatePollution() {
+    // 污染系统仅在绿瓶工业解锁后开启
+    if (!state.techUnlocked) return { gen: 0, clean: 0 };
+    
+    let pollutionGen = 0, pollutionClean = 0;    Object.keys(state.buildings).forEach(k => {
+        const b = state.buildings[k], conf = CONFIG.machines[k];
+        if (b.count > 0 && b.running !== false) {
+            if (conf.type === 'miner' || conf.type === 'furnace') pollutionGen += b.count * 0.01;
+            else if (conf.type === 'assembler') pollutionGen += b.count * 0.005;
+            else if (conf.type === 'power' && conf.fuel) pollutionGen += b.count * 0.02;
+            if (conf.pollutionClean) pollutionClean += b.count * conf.pollutionClean * 0.001;
+        }
+    });
+    if (state.techBranch === 'energy') pollutionGen *= CONFIG.techBranches.energy.pollutionReduction;
+    return { gen: pollutionGen, clean: pollutionClean };
+}
+
+function tick() {
+    let gen = 0, cons = 0;
+    Object.keys(state.buildings).forEach(k => {
+        const b = state.buildings[k], conf = CONFIG.machines[k];
+        if (b.count <= 0) return;
+        if (conf.fuel) {
+            if (b.fuelTime <= 0 && state.resources['煤矿'] >= b.count) { state.resources['煤矿'] -= b.count; b.fuelTime += 300; }
+            if (b.fuelTime > 0 && conf.powerGen) {
+                let power = b.count * conf.powerGen;
+                if (state.techBranch === 'energy') power *= CONFIG.techBranches.energy.genBonus;
+                gen += power;
+            }
+        }
+        if (conf.powerCons) {
+            let power = b.count * conf.powerCons;
+            if (state.techBranch === 'heavy') power *= CONFIG.techBranches.heavy.powerReduction;
+            if (state.techBranch === 'energy') power *= CONFIG.techBranches.energy.powerReduction;
+            cons += power;
+        }
+    });
+    if (gen > state.stats.maxPowerGen) state.stats.maxPowerGen = gen;
+    const powerRatio = cons === 0 ? 1 : (gen >= cons ? 1 : gen / cons);
+    const logistics = calculateLogistics();
+    const logisticsRatio = Math.min(logistics.beltRatio, logistics.inserterRatio);
+    const pollution = calculatePollution();
+    state.pollution = Math.max(0, Math.min(100, state.pollution + pollution.gen - pollution.clean));
+    if (state.pollution < 20) state.stats.lowPollutionTime++;
+    let pollutionPenalty = 1;
+    // 污染惩罚仅在绿瓶工业解锁后生效
+    if (state.techUnlocked) {
+        if (state.pollution > 80) { pollutionPenalty = 0.5; if (Math.random() < 0.001) log('⚠️ 污染过高！设备发生故障！', 'warning'); }
+        else if (state.pollution > 50) pollutionPenalty = 0.8;
+    }
+    Object.keys(state.buildings).forEach(k => {
+        const b = state.buildings[k], conf = CONFIG.machines[k];
+        if (b.count <= 0) return;
+        const isRunning = b.running !== false;
+        let speedMultiplier = 1;
+        if (state.techBranch === 'heavy') {
+            if (conf.type === 'miner') speedMultiplier *= CONFIG.techBranches.heavy.miningSpeed;
+            if (conf.type === 'furnace') speedMultiplier *= CONFIG.techBranches.heavy.smeltSpeed;
+        }
+        const finalMultiplier = speedMultiplier * logisticsRatio * pollutionPenalty * (conf.fuel ? 1 : powerRatio);
+        if (conf.output && b.fuelTime > 0 && isRunning) state.resources[conf.output] += 0.05 * b.count * finalMultiplier;
+        if (conf.recipe && isRunning) {
+            const r = CONFIG.recipes[conf.recipe];
+            const active = conf.fuel ? (b.fuelTime > 0) : (powerRatio > 0);
+            if (active && hasInput(r)) {
+                b.progress += finalMultiplier * (b.count * 0.1);
+                if (b.progress >= r.time) {
+                    consumeInput(r);
+                    let outputMultiplier = state.techBranch === 'chemical' ? CONFIG.techBranches.chemical.outputBonus : 1;
+                    for(let o in r.output) state.resources[o] += r.output[o] * b.count * outputMultiplier;
+                    b.progress = 0;
+                    if(conf.recipe === '红瓶') checkUnlock();
+                }
+            }
+        }
+    });
+    state.stats.totalMachines = Object.values(state.buildings).reduce((sum, b) => sum + b.count, 0);
+    checkAchievements(); updateWonderProgress(); updateUI(gen, cons, powerRatio, logistics, pollution);
+}
+
+function hasInput(r) { for(let i in r.input) if((state.resources[i]||0) < r.input[i]) return false; return true; }
+function consumeInput(r) { for(let i in r.input) state.resources[i] -= r.input[i]; }
+
+function checkUnlock() {
+    if (!state.techUnlocked && state.resources['红瓶'] >= 100) {
+        state.techUnlocked = true; 
+        log("🎉 科技突破！绿瓶工业时代已解锁！");
+        log("⚠️ 注意：工业污染系统已开启，请建造防御设施！", "warning");
+        document.getElementById('wonder-panel').style.display = 'block';
+        // 显示污染系统
+        document.getElementById('pollution-container').style.display = 'flex';
+    }
+    if (state.techUnlocked) {
+        const btn = document.getElementById('btn-green-tab');
+        if (btn && btn.classList.contains('locked')) {
+            btn.classList.remove('locked'); btn.classList.add('new'); btn.innerText = "🧪 绿瓶工业 (已解锁)";
+            document.getElementById('tech-info').innerHTML = "科技状态：<b style='color: var(--green);'>绿瓶时代已解锁</b><br><small>奇迹建筑已可用！</small>";
+        }
+    }
+    const progress = Math.min(100, Math.floor(state.resources['红瓶']));
+    document.getElementById('unlock-progress').innerText = `${progress}/100`;
+    document.getElementById('unlock-bar').style.width = `${progress}%`;
+}
+
+function manualMine() {
+    state.stats.manualClicks++;
+    const pool = ['铁矿','铜矿','煤矿','石英矿','木材','石矿'];
+    const res = pool[Math.floor(Math.random()*pool.length)];
+    state.resources[res]++; showResourcePopup(res, '+1'); log(`手动挖掘：获得 ${res}`);
+}
+
+function showResourcePopup(resource, change) {
+    const popup = document.createElement('div');
+    popup.style.cssText = 'position:fixed;color:#00b894;font-weight:bold;font-size:1.2rem;pointer-events:none;animation:popupFloat 1s ease-out forwards;z-index:9999;';
+    popup.innerText = `${resource} ${change}`;
+    popup.style.left = (Math.random() * window.innerWidth * 0.6 + window.innerWidth * 0.2) + 'px';
+    popup.style.top = (Math.random() * window.innerHeight * 0.4 + window.innerHeight * 0.3) + 'px';
+    document.body.appendChild(popup); setTimeout(() => popup.remove(), 1000);
+}
+
+function manualCraft(target, req) {
+    state.stats.manualClicks++;
+    for(let r in req) if(state.resources[r] < req[r]) return log(`材料不足：缺少 ${r}`);
+    for(let r in req) state.resources[r] -= req[r];
+    state.resources[target]++; showResourcePopup(target, '+1'); log(`手工制作：${target} +1`);
+}
+
+function build(k) {
+    const conf = CONFIG.machines[k], b = state.buildings[k];
+    const mult = Math.pow(1.5, b.count);
+    for(let r in conf.cost) if(state.resources[r] < conf.cost[r]*mult) return log(`建设失败：资源不足`);
+    for(let r in conf.cost) state.resources[r] -= conf.cost[r]*mult;
+    b.count++; log(`建造成功：${conf.name}`);
+}
+
+function toggleMachine(k) {
+    const b = state.buildings[k], conf = CONFIG.machines[k];
+    b.running = !b.running;
+    const btn = document.getElementById(`btn-control-${k}`), card = document.getElementById(`card-${k}`);
+    if (b.running) {
+        btn.className = 'btn-control running'; btn.innerHTML = '<span>⏸️</span> <span>暂停</span>'; card.classList.remove('machine-paused');
+        log(`${conf.name} 已启动`);
+    } else {
+        btn.className = 'btn-control paused'; btn.innerHTML = '<span>▶️</span> <span>启动</span>'; card.classList.add('machine-paused');
+        log(`${conf.name} 已暂停`);
+    }
+}
+
+function renderBase() {
+    const createCard = (k) => {
+        const conf = CONFIG.machines[k];
+        let recipeInfo = '';
+        if (conf.recipe && CONFIG.recipes[conf.recipe]) {
+            const recipe = CONFIG.recipes[conf.recipe];
+            const inputStr = Object.entries(recipe.input).map(([res, count]) => {
+                const style = CONFIG.resourceStyles[res] || { icon: '📦', color: '#636e72' };
+                return `<span style="display:inline-flex;align-items:center;gap:2px;padding:2px 6px;background:rgba(255,255,255,0.8);border-radius:4px;font-size:0.8rem;color:${style.color}">${style.icon}${res}×${count}</span>`;
+            }).join(' + ');
+            const outputStyle = CONFIG.resourceStyles[conf.recipe] || { icon: '📦', color: '#00b894' };
+            recipeInfo = `<div style="margin:10px 0;padding:10px;background:linear-gradient(135deg,rgba(0,212,170,0.1) 0%,rgba(116,185,255,0.1) 100%);border-radius:8px;border-left:3px solid var(--primary);"><div style="font-size:0.85rem;font-weight:600;margin-bottom:6px;display:flex;flex-wrap:wrap;align-items:center;gap:4px;">${inputStr} ➔ <span style="color:${outputStyle.color}">${outputStyle.icon}${conf.recipe}</span></div><div style="font-size:0.75rem;color:#7f8c8d;">⏱️ ${(recipe.time / 10).toFixed(1)}秒/个</div></div>`;
+        } else if (conf.output) {
+            const outputStyle = CONFIG.resourceStyles[conf.output] || { icon: '⛏️', color: '#e17055' };
+            recipeInfo = `<div style="margin:10px 0;padding:10px;background:linear-gradient(135deg,rgba(0,212,170,0.1) 0%,rgba(116,185,255,0.1) 100%);border-radius:8px;border-left:3px solid var(--primary);"><div style="font-size:0.85rem;font-weight:600;"><span style="color:${outputStyle.color}">${outputStyle.icon}产出: ${conf.output}</span></div></div>`;
+        }
+        let logisticsInfo = '';
+        if (conf.logisticsReq && (conf.logisticsReq.belt || conf.logisticsReq.inserter)) {
+            logisticsInfo = `<div style="font-size:0.75rem;color:var(--logistics);margin:6px 0;padding:6px 8px;background:rgba(225,112,85,0.1);border-radius:4px;border-left:2px solid var(--logistics);">📦 物流需求: 传送带×${conf.logisticsReq.belt || 0} 机械臂×${conf.logisticsReq.inserter || 0}</div>`;
+        }
+        const isSmeltingOrAssembly = conf.type === 'furnace' || conf.type === 'assembler';
+        let controlBtn = '';
+        if (isSmeltingOrAssembly) {
+            controlBtn = `<button class="btn-control running" id="btn-control-${k}" onclick="toggleMachine('${k}')"><span>⏸️</span> <span>暂停</span></button>`;
+        }
+        return `<div class="machine-card" id="card-${k}"><div class="machine-header"><b>${conf.name} <span id="icon-${k}">⚙️</span></b><span class="count" id="cnt-${k}">0</span></div>${recipeInfo}${logisticsInfo}<div class="cost" id="cost-${k}"></div><div class="machine-controls"><button class="btn-build" onclick="build('${k}')">建造</button>${controlBtn}</div><progress id="prog-${k}" value="0" max="100"></progress></div>`;
+    };
+    const groups = {};
+    Object.keys(CONFIG.machines).forEach(k => {
+        const m = CONFIG.machines[k];
+        let targetId = `sec-${m.type}-${m.tier}`;
+        if (m.type === 'belt') targetId = 'sec-belt';
+        if (m.type === 'inserter') targetId = 'sec-inserter';
+        if (m.type === 'defense') targetId = 'sec-defense';
+        if(!groups[targetId]) groups[targetId] = '';
+        groups[targetId] += createCard(k);
+    });
+    Object.keys(groups).forEach(targetId => { const el = document.getElementById(targetId); if(el) el.innerHTML = groups[targetId]; });
+}
+
+function updateUI(gen, cons, powerRatio, logistics, pollution) {
+    const resList = document.getElementById('res-list');
+    const maxVal = Math.max(...Object.values(state.resources).map(v => Math.floor(v)), 1);
+    const categories = { basic: { title: '🔴 基础工业', resources: [] }, green: { title: '🧪 绿瓶工业', resources: [] }, logistics: { title: '🚛 物流设备', resources: [] } };
+    Object.keys(state.resources).sort().forEach(r => {
+        const val = Math.floor(state.resources[r]);
+        const resStyle = CONFIG.resourceStyles[r] || { icon: '📦', color: '#636e72', bgColor: 'rgba(99, 110, 114, 0.15)', category: 'basic' };
+        if (val > 0 || r.includes('瓶')) {
+            if (r.includes('传送带') || r.includes('机械臂') || r.includes('过滤器') || r.includes('机器人')) categories.logistics.resources.push({ name: r, val, style: resStyle });
+            else categories[resStyle.category || 'basic'].resources.push({ name: r, val, style: resStyle });
+        }
+    });
+    let html = '';
+    if (categories.basic.resources.length > 0) html += `<div class="res-category"><div class="res-category-title red-era">${categories.basic.title}</div><div class="res-grid">${categories.basic.resources.map(r => createResourceItem(r.name, r.val, r.style, maxVal)).join('')}</div></div>`;
+    if (categories.green.resources.length > 0) html += `<div class="res-category"><div class="res-category-title green-era">${categories.green.title}</div><div class="res-grid">${categories.green.resources.map(r => createResourceItem(r.name, r.val, r.style, maxVal)).join('')}</div></div>`;
+    if (categories.logistics.resources.length > 0) html += `<div class="res-category"><div class="res-category-title logistics">${categories.logistics.title}</div><div class="res-grid">${categories.logistics.resources.map(r => createResourceItem(r.name, r.val, r.style, maxVal)).join('')}</div></div>`;
+    resList.innerHTML = html;
+    Object.keys(state.resources).forEach(r => { previousResources[r] = state.resources[r]; });
+    const batteryFill = document.getElementById('battery-fill'), powerText = document.getElementById('power-summary');
+    const batteryPercent = gen > 0 ? Math.min(100, Math.floor((gen / Math.max(cons, 1)) * 100)) : 0;
+    batteryFill.style.width = `${batteryPercent}%`;
+    batteryFill.className = 'battery-fill ' + (powerRatio >= 1 ? 'high' : powerRatio >= 0.5 ? 'medium' : 'low');
+    powerText.innerText = `${Math.floor(cons)}/${Math.floor(gen)}`;
+        // 仅在污染系统开启后更新显示
+    if (state.techUnlocked) {
+        const pollutionFill = document.getElementById('pollution-fill'), pollutionText = document.getElementById('pollution-text');
+        pollutionFill.style.width = `${state.pollution}%`; 
+        pollutionText.innerText = `${Math.floor(state.pollution)}%`;
+        pollutionFill.className = 'pollution-fill' + (state.pollution > 80 ? ' critical' : '');
+    }
+    document.getElementById('belt-load-basic').style.width = `${Math.min(100, (logistics.totalBeltReq / Math.max(logistics.totalBeltCapacity, 1)) * 100)}%`;
+    document.getElementById('belt-text-basic').innerText = `${Math.floor(logistics.beltRatio * 100)}%`;
+    document.getElementById('belt-load-advanced').style.width = `${Math.min(100, (logistics.totalBeltReq / Math.max(logistics.totalBeltCapacity, 1)) * 100)}%`;
+    document.getElementById('belt-text-advanced').innerText = `${Math.floor(logistics.beltRatio * 100)}%`;
+    document.getElementById('inserter-efficiency').style.width = `${Math.min(100, (logistics.totalInserterReq / Math.max(logistics.totalInserterSpeed, 1)) * 100)}%`;
+    document.getElementById('inserter-text').innerText = `${Math.floor(logistics.inserterRatio * 100)}%`;
+    const et = document.getElementById('eff-tag'); et.innerText = `${Math.floor(powerRatio * 100)}%`; et.style.color = powerRatio < 1 ? '#ff6b6b' : '#00b894';
+    Object.keys(CONFIG.machines).forEach(k => {
+        const b = state.buildings[k], conf = CONFIG.machines[k];
+        const cntEl = document.getElementById(`cnt-${k}`), progEl = document.getElementById(`prog-${k}`), iconEl = document.getElementById(`icon-${k}`), costEl = document.getElementById(`cost-${k}`), cardEl = document.getElementById(`card-${k}`);
+        if(cntEl) cntEl.innerText = b.count;
+        if(progEl && conf.recipe) progEl.value = (b.progress/CONFIG.recipes[conf.recipe].time)*100;
+        const active = b.count > 0 && (conf.fuel ? b.fuelTime > 0 : powerRatio > 0);
+        if(iconEl) iconEl.className = active ? 'rotate-icon' : '';
+        if(costEl) { let ctxt = "📦 需要: ", mult = Math.pow(1.5, b.count); for(let r in conf.cost) ctxt += `${Math.floor(conf.cost[r]*mult)}${r} `; costEl.innerText = ctxt; }
+        if (cardEl && conf.logisticsReq) { if (logistics.beltRatio < 0.5 || logistics.inserterRatio < 0.5) cardEl.classList.add('bottleneck'); else cardEl.classList.remove('bottleneck'); }
+    });
+}
+
+function createResourceItem(r, val, resStyle, maxVal) {
+    const prevVal = Math.floor(previousResources[r] || 0);
+    const progressPercent = Math.min(100, (val / Math.max(maxVal, 100)) * 100);
+    const changed = val !== prevVal ? 'changed' : '';
+    return `<div class="res-item" style="--bg-fill-width: ${progressPercent}%; --res-bg-color: ${resStyle.bgColor}; border-left-color: ${resStyle.color};"><span style="color: ${resStyle.color};">${resStyle.icon} ${r}</span><div class="res-value-container"><div class="res-progress-bar"><div class="res-progress-fill" style="width: ${progressPercent}%; background: linear-gradient(90deg, ${resStyle.color} 0%, ${resStyle.color}dd 100%)"></div></div><b class="res-value ${changed}" style="color: ${resStyle.color}">${val}</b></div></div>`;
+}
+
+function renderAchievements() {
+    const container = document.getElementById('achievement-list');
+    container.innerHTML = CONFIG.achievements.map(a => `<div class="achievement-item ${state.achievements[a.id] ? 'unlocked' : ''}" id="achievement-${a.id}"><div class="achievement-icon">${a.icon}</div><div class="achievement-info"><h4>${a.name}</h4><p>${a.desc}</p></div></div>`).join('');
+}
+
+function checkAchievements() {
+    CONFIG.achievements.forEach(a => {
+        if (!state.achievements[a.id] && a.condition()) {
+            state.achievements[a.id] = true;
+            document.getElementById(`achievement-${a.id}`).classList.add('unlocked');
+            log(`🏆 成就解锁：${a.name}！`, 'success');
+        }
+    });
+}
+
+function triggerRandomEvent() {
+    const event = CONFIG.events[Math.floor(Math.random() * CONFIG.events.length)];
+    state.activeEvent = { ...event, accepted: false, completed: false }; state.eventTimer = event.time;
+    document.getElementById('event-icon').innerText = event.icon;
+    document.getElementById('event-title').innerText = event.name;
+    document.getElementById('event-description').innerText = event.desc;
+    document.getElementById('event-reqs').innerText = Object.entries(event.req).map(([res, count]) => `${res}×${count}`).join(', ');
+    document.getElementById('event-modal').classList.add('active');
+    document.getElementById('event-panel').style.display = 'block';
+    updateEventPanel();
+}
+
+function eventTick() {
+    if (state.activeEvent && state.activeEvent.accepted && !state.activeEvent.completed) {
+        state.eventTimer--;
+        let completed = true;
+        for (let res in state.activeEvent.req) { if (state.resources[res] < state.activeEvent.req[res]) { completed = false; break; } }
+        if (completed) completeEvent();
+        else if (state.eventTimer <= 0) failEvent();
+        updateEventTimer(); updateEventPanel();
+    }
+}
+
+function acceptEvent() { state.activeEvent.accepted = true; document.getElementById('event-modal').classList.remove('active'); log(`📋 已接受订单：${state.activeEvent.name}，限时${state.activeEvent.time}秒！`); }
+function rejectEvent() { state.activeEvent = null; document.getElementById('event-modal').classList.remove('active'); document.getElementById('event-panel').style.display = 'none'; }
+
+function completeEvent() {
+    state.activeEvent.completed = true;
+    for (let res in state.activeEvent.req) state.resources[res] -= state.activeEvent.req[res];
+    for (let res in state.activeEvent.reward) state.resources[res] += state.activeEvent.reward[res];
+    log(`✅ 订单完成！获得奖励！`, 'success'); state.activeEvent = null; document.getElementById('event-panel').style.display = 'none';
+}
+
+function failEvent() { log(`❌ 订单超时，未能完成！`, 'danger'); state.activeEvent = null; document.getElementById('event-panel').style.display = 'none'; }
+
+function updateEventTimer() {
+    const mins = Math.floor(state.eventTimer / 60), secs = state.eventTimer % 60;
+    document.getElementById('event-timer').innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+function updateEventPanel() {
+    if (!state.activeEvent) return;
+    const reqHtml = Object.entries(state.activeEvent.req).map(([res, count]) => {
+        const current = Math.floor(state.resources[res] || 0);
+        const color = current >= count ? '#00b894' : '#636e72';
+        return `<span style="color: ${color}">${res}: ${current}/${count}</span>`;
+    }).join('<br>');
+    const mins = Math.floor(state.eventTimer / 60), secs = state.eventTimer % 60;
+    document.getElementById('active-event-info').innerHTML = `<h4 style="color: var(--logistics); margin-bottom: 8px;">${state.activeEvent.name}</h4><p style="font-size: 0.8rem; margin-bottom: 8px;">${reqHtml}</p><p style="font-size: 0.9rem; color: var(--danger); font-weight: bold;">⏱️ ${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}</p>`;
+}
+
+function renderWonderRequirements() {
+    const container = document.getElementById('wonder-reqs');
+    container.innerHTML = Object.entries(CONFIG.wonderRequirements).map(([res, count]) => `<div class="wonder-req-item">${res}<br>${count}</div>`).join('');
+}
+
+function updateWonderProgress() {
+    let totalProgress = 0, totalItems = 0;
+    Object.entries(CONFIG.wonderRequirements).forEach(([res, required]) => {
+        const current = Math.min(state.resources[res] || 0, required);
+        totalProgress += current / required; totalItems++;
+    });
+    const overallProgress = (totalProgress / totalItems) * 100; state.wonderProgress = overallProgress;
+    const progressBar = document.getElementById('wonder-progress');
+    progressBar.style.width = `${overallProgress}%`; progressBar.innerText = `${Math.floor(overallProgress)}%`;
+}
+
+function buildWonder() {
+    let canBuild = true;
+    Object.entries(CONFIG.wonderRequirements).forEach(([res, required]) => { if ((state.resources[res] || 0) < required) canBuild = false; });
+    if (!canBuild) { log('❌ 资源不足，无法建造奇迹！', 'danger'); return; }
+    Object.entries(CONFIG.wonderRequirements).forEach(([res, required]) => { state.resources[res] -= required; });
+    log('🎉 恭喜！你已成功建造空间折叠发生器！', 'success');
+    log('🌟 你已成为真正的工业巨头！游戏通关！', 'success');
+    alert('🏆 恭喜通关！\\n\\n你已成功建造空间折叠发生器，证明了你的工业实力！');
+}
+
+function saveGame() {
+    try { localStorage.setItem('factory_v4_enhanced_save', JSON.stringify(state)); log('💾 存档成功'); }
+    catch(e) { log('❌ 存档失败：' + (e.message || '未知错误')); }
+}
+
+// 移动端触摸优化
+document.addEventListener('touchstart', function() {}, { passive: true });
+
+// 防止双击缩放
+let lastTouchEnd = 0;
+document.addEventListener('touchend', function(e) {
+    const now = Date.now();
+    if (now - lastTouchEnd <= 300) {
+        e.preventDefault();
+    }
+    lastTouchEnd = now;
+}, { passive: false });
+
+// 防止页面滚动时误触
+document.addEventListener('touchmove', function(e) {
+    if (e.target.closest('.log-panel')) {
+        e.stopPropagation();
+    }
+}, { passive: true });
+
+// 检测是否为移动设备并添加类名
+function detectMobile() {
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if (isMobile) {
+        document.body.classList.add('mobile-device');
+        log('📱 已切换到移动端模式');
+    }
+}
+
+if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function() { init(); detectMobile(); });
+else { init(); detectMobile(); }
+</script>
+</body>
+</html>
